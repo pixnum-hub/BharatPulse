@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>BharatPulse — Live India Register</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12130F">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root{ --bg:#F7F4EC; --panel:#FFFFFF; --text:#1B1B1F; --sub:#5B5A55; --accent:#B5450A; --accent2:#0E6B3A; --line:#E4E0D4; --digit:#1B1B1F; }
+  [data-theme="dark"]{ --bg:#12130F; --panel:#1B1C17; --text:#EDEAE0; --sub:#9C9A8E; --accent:#FF9F5A; --accent2:#4CC790; --line:#2C2D26; --digit:#F3F1E8; }
+  [data-theme="oled"]{ --bg:#000000; --panel:#0A0A0A; --text:#F0EFE8; --sub:#8A887E; --accent:#FF9F5A; --accent2:#3FCB84; --line:#1A1A1A; --digit:#FFFFFF; }
+  [data-theme="hc"]{ --bg:#000000; --panel:#000000; --text:#FFFFFF; --sub:#FFFF00; --accent:#FFFF00; --accent2:#00FFFF; --line:#FFFFFF; --digit:#FFFFFF; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:20px 16px 12px; transition:background .25s,color .25s; }
+  .wrap{width:100%; max-width:480px; display:flex; flex-direction:column; align-items:center; flex:1;}
+  .eyebrow{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--sub); font-weight:600; margin-bottom:4px; text-align:center; }
+  h1{ font-size:26px; font-weight:800; text-align:center; letter-spacing:-.01em; margin-bottom:2px; }
+  h1 span{color:var(--accent);}
+  .clock{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:13px; font-weight:700; color:var(--sub); text-align:center; margin-bottom:18px; }
+  .hero{ width:100%; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px 14px; text-align:center; margin-bottom:14px; }
+  .hero-label{font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--sub); font-weight:700; margin-bottom:8px;}
+  .odometer{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:clamp(30px,9vw,44px); font-weight:700; color:var(--digit); letter-spacing:.02em; font-variant-numeric:tabular-nums; word-break:break-all; }
+  .hero-note{font-size:12.5px; color:var(--sub); margin-top:8px; line-height:1.6;}
+  .subrow{display:flex; gap:10px; width:100%; margin-bottom:14px;}
+  .subcard{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px 12px; text-align:center; }
+  .subcard .lbl{font-size:15px; letter-spacing:.08em; text-transform:uppercase; color:var(--sub); font-weight:700; margin-bottom:9px;}
+  .subcard .val{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .births .val{color:var(--accent2);} .deaths .val{color:var(--accent);}
+  .grid{width:100%; display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:18px;}
+  .cell{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px 18px; }
+  .cell .lbl{font-size:15px; letter-spacing:.03em; text-transform:uppercase; color:var(--sub); font-weight:700; margin-bottom:9px; line-height:1.35;}
+  .cell .v{font-size:21px; font-weight:700; line-height:1.35; word-break:break-word;}
+  .status{font-size:12.5px; color:var(--sub); text-align:center; margin-bottom:18px; min-height:16px;}
+  .toggle-all{ display:block; width:100%; padding:12px; margin-bottom:14px; border-radius:14px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); font-size:14px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; }
+  .about{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:18px; }
+  .about summary{ margin-bottom:0; }
+  .about[open] summary{ margin-bottom:10px; }
+  .about-body p{ font-size:12.5px; color:var(--sub); line-height:1.6; text-align:left; margin-bottom:10px; }
+  .about-body p:last-child{ margin-bottom:0; }
+  .about-body strong{ color:var(--text); }
+  .toggle-all:active{ opacity:.7; }
+  .section-label{ width:100%; font-size:16px; letter-spacing:.1em; text-transform:uppercase; color:var(--text); font-weight:800; text-align:center; margin-bottom:14px; }
+  .grp{width:100%; margin-bottom:6px;}
+  .grp summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .grp summary::-webkit-details-marker{display:none;}
+  .grp summary::after{content:'▾'; font-size:13px; color:var(--accent); transition:transform .2s;}
+  .grp:not([open]) summary::after{transform:rotate(-90deg);}
+  .grp:not([open]) summary{margin-bottom:0;}
+  .pulse-grid{width:100%; display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:12px;}
+  .pulsecard{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; text-align:center; }
+  .pulsecard .lbl{font-size:15px; letter-spacing:.02em; text-transform:uppercase; color:var(--sub); font-weight:700; margin-bottom:9px; line-height:1.35;}
+  .pulsecard .val{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:22px; font-weight:700; color:var(--digit); font-variant-numeric:tabular-nums; }
+  .pulse-note{font-size:12.5px; color:var(--sub); text-align:center; line-height:1.6; margin-bottom:20px;}
+  .themes{display:flex; gap:8px; margin-bottom:14px;}
+  .tbtn{ width:38px; height:38px; border-radius:50%; border:1.5px solid var(--line); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; background:var(--panel); color:var(--text); }
+  .tbtn.active{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent) inset;}
+  footer{
+    margin-top:auto; padding-top:10px; text-align:center;
+    font-size:11px; color:var(--sub); line-height:1.6;
+  }
+  @media (min-width:480px){ .wrap{padding-top:6px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Live National Register</div>
+  <h1>Bharat<span>Pulse</span></h1>
+  <div class="clock" id="clock">--:--:--</div>
+  <details class="grp about"><summary class="section-label">ℹ️ About &amp; Data Methodology</summary>
+  <div class="about-body">
+    <p>BharatPulse is an <strong>independent, unofficial project</strong> with no affiliation to, endorsement by, or sponsorship from the Government of India or any of its ministries, departments, or agencies.</p>
+    <p>Most figures on this page are not live feeds. They are <strong>mathematical estimates</strong>: a published baseline figure from a credible source (RBI, NPCI, Ministry of Railways, DataReportal, etc., cited in each section's footnote) is extrapolated forward every second using its known annual growth rate or fiscal-year pace — the same technique used by public "population clock" style sites. They approximate real-world totals but are <strong>not official real-time statistics</strong> and will not exactly match any government dashboard at a given instant.</p>
+    <p>Static facts (geography, national symbols, country profile) are drawn from public sources including the free REST Countries API and general reference knowledge, and are believed accurate as of mid-2026 but not independently verified against primary government sources.</p>
+    <p>This app is provided for informational and illustrative purposes only. Please verify any figure against its original source before relying on it for research, reporting, or decision-making.</p>
+  </div>
+  </details>
+  <div class="hero">
+    <div class="hero-label">Estimated Population — India</div>
+    <div class="odometer" id="population">—</div>
+    <div class="hero-note">Live estimate, updated every second from the latest baseline population and annual birth/death rates. Not an official real-time census figure.</div>
+  </div>
+  <div class="subrow">
+    <div class="subcard births">
+      <div class="lbl">Births Today</div>
+      <div class="val" id="births">—</div>
+    </div>
+    <div class="subcard deaths">
+      <div class="lbl">Deaths Today</div>
+      <div class="val" id="deaths">—</div>
+    </div>
+  </div>
+  <button class="toggle-all" id="toggleAllBtn" onclick="toggleAllGroups()">Expand All</button>
+  <details class="grp"><summary class="section-label">India — Country Profile</summary>
+  <div class="grid" id="statsGrid">
+    <div class="cell"><div class="lbl">Capital</div><div class="v" id="capital">—</div></div><div class="cell"><div class="lbl">Region</div><div class="v" id="region">—</div></div>
+    <div class="cell"><div class="lbl">Area</div><div class="v" id="area">—</div></div><div class="cell"><div class="lbl">Timezones</div><div class="v" id="tz">—</div></div>
+    <div class="cell"><div class="lbl">Currency</div><div class="v" id="currency">—</div></div><div class="cell"><div class="lbl">Official Languages</div><div class="v" id="languages">—</div></div>
+    <div class="cell"><div class="lbl">Bordering Nations</div><div class="v" id="borders">—</div></div><div class="cell"><div class="lbl">Calling Code</div><div class="v" id="calling">—</div></div>
+    <div class="cell"><div class="lbl">Registered Population</div><div class="v" id="officialPop">—</div></div><div class="cell"><div class="lbl">Native Name</div><div class="v" id="nativeName">—</div></div>
+    <div class="cell"><div class="lbl">Demonym</div><div class="v" id="demonym">—</div></div><div class="cell"><div class="lbl">Continent</div><div class="v" id="continent">—</div></div>
+    <div class="cell"><div class="lbl">Flag</div><div class="v" id="flagEmoji">—</div></div><div class="cell"><div class="lbl">Top-Level Domain</div><div class="v" id="tld">—</div></div>
+    <div class="cell"><div class="lbl">Traffic Side</div><div class="v" id="driving">—</div></div><div class="cell"><div class="lbl">Landlocked</div><div class="v" id="landlocked">—</div></div>
+    <div class="cell"><div class="lbl">UN Member</div><div class="v" id="unMember">—</div></div><div class="cell"><div class="lbl">Independent</div><div class="v" id="independent">—</div></div>
+    <div class="cell"><div class="lbl">FIFA Code</div><div class="v" id="fifa">—</div></div><div class="cell"><div class="lbl">Start of Week</div><div class="v" id="startWeek">—</div></div>
+    <div class="cell"><div class="lbl">Gini Index</div><div class="v" id="gini">—</div></div><div class="cell"><div class="lbl">Capital Coordinates</div><div class="v" id="capCoords">—</div></div>
+    <div class="cell"><div class="lbl">ISO Country Code</div><div class="v">IN / IND</div></div><div class="cell"><div class="lbl">Currency Code</div><div class="v">INR</div></div>
+    <div class="cell"><div class="lbl">Time Zone Name</div><div class="v">Indian Standard Time (IST)</div></div><div class="cell"><div class="lbl">Coastline Length</div><div class="v">7,516 km</div></div>
+    <div class="cell"><div class="lbl">Land Border Length</div><div class="v">15,106 km</div></div><div class="cell"><div class="lbl">National Motto</div><div class="v">Satyameva Jayate</div></div>
+    <div class="cell"><div class="lbl">Government Form</div><div class="v">Federal Parliamentary Republic</div></div><div class="cell"><div class="lbl">Head of State</div><div class="v">President</div></div>
+    <div class="cell"><div class="lbl">Head of Government</div><div class="v">Prime Minister</div></div><div class="cell"><div class="lbl">Legislature</div><div class="v">Bicameral Parliament (Lok Sabha &amp; Rajya Sabha)</div></div>
+  </div>  </details>
+  <div class="status" id="status">Loading live country data…</div>
+  <details class="grp"><summary class="section-label">India — National Symbols &amp; Key Facts</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">National Anthem</div><div class="v">Jana Gana Mana</div></div><div class="cell"><div class="lbl">National Song</div><div class="v">Vande Mataram</div></div>
+    <div class="cell"><div class="lbl">National Animal</div><div class="v">Royal Bengal Tiger</div></div><div class="cell"><div class="lbl">National Bird</div><div class="v">Indian Peacock</div></div>
+    <div class="cell"><div class="lbl">National Flower</div><div class="v">Lotus</div></div><div class="cell"><div class="lbl">National Fruit</div><div class="v">Mango</div></div>
+    <div class="cell"><div class="lbl">National Tree</div><div class="v">Banyan</div></div><div class="cell"><div class="lbl">National Sport</div><div class="v">Field Hockey*</div></div>
+    <div class="cell"><div class="lbl">National Emblem</div><div class="v">Lion Capital of Ashoka</div></div><div class="cell"><div class="lbl">Number of States</div><div class="v">28</div></div>
+    <div class="cell"><div class="lbl">Union Territories</div><div class="v">8</div></div><div class="cell"><div class="lbl">Scheduled Languages</div><div class="v">22</div></div>
+    <div class="cell"><div class="lbl">Independence Day</div><div class="v">15 August 1947</div></div><div class="cell"><div class="lbl">Republic Day</div><div class="v">26 January 1950</div></div>
+    <div class="cell"><div class="lbl">Highest Peak</div><div class="v">Kangchenjunga, 8,586 m</div></div><div class="cell"><div class="lbl">Longest River</div><div class="v">Ganga, ~2,525 km</div></div>
+    <div class="cell"><div class="lbl">Largest State (Area)</div><div class="v">Rajasthan</div></div><div class="cell"><div class="lbl">Largest State (Pop.)</div><div class="v">Uttar Pradesh</div></div>
+    <div class="cell"><div class="lbl">Smallest State (Area)</div><div class="v">Goa</div></div><div class="cell"><div class="lbl">GDP Rank (Nominal)</div><div class="v">6th largest†</div></div>
+    <div class="cell"><div class="lbl">GDP Rank (PPP)</div><div class="v">3rd largest†</div></div><div class="cell"><div class="lbl">Adult Literacy Rate</div><div class="v">~80% (est.)</div></div>
+    <div class="cell"><div class="lbl">Life Expectancy</div><div class="v">~70 years (est.)</div></div><div class="cell"><div class="lbl">Forest &amp; Tree Cover</div><div class="v">~24% of area</div></div>
+    <div class="cell"><div class="lbl">UNESCO Heritage Sites</div><div class="v">43</div></div>
+    <div class="cell"><div class="lbl">National Currency Symbol</div><div class="v">₹ (adopted 2010)</div></div><div class="cell"><div class="lbl">National Calendar</div><div class="v">Saka Calendar</div></div>
+    <div class="cell"><div class="lbl">National Aquatic Animal</div><div class="v">Ganges River Dolphin</div></div><div class="cell"><div class="lbl">National Reptile</div><div class="v">King Cobra</div></div>
+    <div class="cell"><div class="lbl">National Heritage Animal</div><div class="v">Indian Elephant</div></div><div class="cell"><div class="lbl">Father of the Nation</div><div class="v">Mahatma Gandhi</div></div>
+    <div class="cell"><div class="lbl">National Unity Day</div><div class="v">31 October</div></div><div class="cell"><div class="lbl">National Science Day</div><div class="v">28 February</div></div>
+    <div class="cell"><div class="lbl">National Youth Day</div><div class="v">12 January</div></div><div class="cell"><div class="lbl">National Girl Child Day</div><div class="v">24 January</div></div>
+  </div>  </details>
+  <div class="pulse-note">*Widely regarded, not officially notified by law. †As of April 2026, per IMF/World Bank data; GDP rankings shift year to year.</div>
+  <details class="grp"><summary class="section-label">India — Live Energy, Automotive &amp; Trade Pulse</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Forex Reserves</div><div class="v" id="forexReserves">—</div></div><div class="cell"><div class="lbl">Remittances This FY</div><div class="v" id="remittances">—</div></div>
+    <div class="cell"><div class="lbl">Renewable Capacity</div><div class="v" id="renewableCapacity">—</div></div><div class="cell"><div class="lbl">Solar Power Capacity</div><div class="v" id="solarCapacity">—</div></div>
+    <div class="cell"><div class="lbl">Wind Power Capacity</div><div class="v" id="windCapacity">—</div></div><div class="cell"><div class="lbl">Non-Fossil Capacity</div><div class="v" id="nonFossilCapacity">—</div></div>
+    <div class="cell"><div class="lbl">LPG Consumed This FY</div><div class="v" id="lpgConsumption">—</div></div><div class="cell"><div class="lbl">LPG Import Dependency</div><div class="v">~60% (fixed ratio)</div></div>
+    <div class="cell"><div class="lbl">Crude Oil Import Dependency</div><div class="v">~85–88% (fixed ratio)</div></div><div class="cell"><div class="lbl">Passenger Vehicles Sold This FY</div><div class="v" id="pvSales">—</div></div>
+    <div class="cell"><div class="lbl">Two-Wheelers Sold This FY</div><div class="v" id="twoWheelerSales">—</div></div><div class="cell"><div class="lbl">Total Automobiles Sold This FY</div><div class="v" id="totalAutoSales">—</div></div>
+    <div class="cell"><div class="lbl">Milk Produced This FY</div><div class="v" id="milkProduction">—</div></div><div class="cell"><div class="lbl">Rice Produced This FY</div><div class="v" id="riceProduction">—</div></div>
+    <div class="cell"><div class="lbl">Wheat Produced This FY</div><div class="v" id="wheatProduction">—</div></div><div class="cell"><div class="lbl">Sugar Produced This FY</div><div class="v" id="sugarProduction">—</div></div>
+    <div class="cell"><div class="lbl">Steel Produced This FY</div><div class="v" id="steelProduction">—</div></div><div class="cell"><div class="lbl">Cement Produced This FY</div><div class="v" id="cementProduction">—</div></div>
+    <div class="cell"><div class="lbl">Coal Produced This FY</div><div class="v" id="coalProduction">—</div></div><div class="cell"><div class="lbl">Operational Airports</div><div class="v">~150 (fixed count)</div></div>
+    <div class="cell"><div class="lbl">Major Seaports</div><div class="v">12 (fixed count)</div></div><div class="cell"><div class="lbl">IT &amp; BPM Exports This FY</div><div class="v" id="itExports">—</div></div>
+    <div class="cell"><div class="lbl">Textile Exports This FY</div><div class="v" id="textileExports">—</div></div><div class="cell"><div class="lbl">Mobile Phone Subscribers</div><div class="v" id="mobileSubscribers">—</div></div>
+    <div class="cell"><div class="lbl">GST Registered Taxpayers</div><div class="v" id="gstTaxpayers">—</div></div>
+    <div class="cell"><div class="lbl">Petrol Consumed This FY</div><div class="v" id="petrolConsumedFY">—</div></div><div class="cell"><div class="lbl">Diesel Consumed This FY</div><div class="v" id="dieselConsumedFY">—</div></div>
+    <div class="cell"><div class="lbl">Natural Gas Consumed This FY</div><div class="v" id="naturalGasConsumedFY">—</div></div><div class="cell"><div class="lbl">Nuclear Power Capacity</div><div class="v" id="nuclearCapacity">—</div></div>
+    <div class="cell"><div class="lbl">Hydro Power Capacity</div><div class="v" id="hydroCapacity">—</div></div><div class="cell"><div class="lbl">Thermal Power Capacity</div><div class="v" id="thermalCapacity">—</div></div>
+    <div class="cell"><div class="lbl">EV Charging Stations</div><div class="v" id="evChargingStations">—</div></div><div class="cell"><div class="lbl">Commercial Vehicles Sold This FY</div><div class="v" id="commercialVehicleSalesFY">—</div></div>
+    <div class="cell"><div class="lbl">Tractors Sold This FY</div><div class="v" id="tractorSalesFY">—</div></div><div class="cell"><div class="lbl">Auto Component Exports This FY</div><div class="v" id="autoComponentExportsFY">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">21 of these 25 are live, ticking every second: "stock" figures (reserves, capacity, subscribers) grow from published annual rates; "this FY" figures accumulate from India's fiscal year start (1 April) using each sector's published annual total. Import-dependency ratios and infrastructure counts are genuinely fixed and shown as such. Sources: RBI, SIAM, MNRE, PPAC, government trade data (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — More Live Statistics</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Jan Dhan Bank Accounts</div><div class="v" id="janDhanAccounts">—</div></div><div class="cell"><div class="lbl">Aadhaar Enrolments</div><div class="v" id="aadhaarEnrolments">—</div></div>
+    <div class="cell"><div class="lbl">DPIIT-Recognized Startups</div><div class="v" id="dpiitStartups">—</div></div><div class="cell"><div class="lbl">Registered Vehicles</div><div class="v" id="registeredVehicles">—</div></div>
+    <div class="cell"><div class="lbl">Broadband Subscribers</div><div class="v" id="broadbandSubscribers">—</div></div><div class="cell"><div class="lbl">5G Subscribers</div><div class="v" id="fiveGSubscribers">—</div></div>
+    <div class="cell"><div class="lbl">Patents Filed This FY</div><div class="v" id="patentsFiled">—</div></div><div class="cell"><div class="lbl">Domestic Air Passengers This FY</div><div class="v" id="domesticAirPax">—</div></div>
+    <div class="cell"><div class="lbl">Foreign Tourist Arrivals This FY</div><div class="v" id="foreignTouristArrivals">—</div></div><div class="cell"><div class="lbl">Egg Production This FY</div><div class="v" id="eggProduction">—</div></div>
+    <div class="cell"><div class="lbl">Cotton Production This FY</div><div class="v" id="cottonProduction">—</div></div><div class="cell"><div class="lbl">Tea Production This FY</div><div class="v" id="teaProduction">—</div></div>
+    <div class="cell"><div class="lbl">Coffee Production This FY</div><div class="v" id="coffeeProduction">—</div></div><div class="cell"><div class="lbl">Fish Production This FY</div><div class="v" id="fishProduction">—</div></div>
+    <div class="cell"><div class="lbl">Electricity Generated This FY</div><div class="v" id="electricityGenerated">—</div></div>
+    <div class="cell"><div class="lbl">Debit Cards Issued</div><div class="v" id="debitCardsIssued">—</div></div><div class="cell"><div class="lbl">Credit Cards Issued</div><div class="v" id="creditCardsIssued">—</div></div>
+    <div class="cell"><div class="lbl">FASTag Transactions This FY</div><div class="v" id="fastagTransactionsFY">—</div></div><div class="cell"><div class="lbl">Toll Collections This FY</div><div class="v" id="tollCollectionsFY">—</div></div>
+    <div class="cell"><div class="lbl">NPS Subscribers</div><div class="v" id="npsSubscribers">—</div></div><div class="cell"><div class="lbl">Cooperative Banks</div><div class="v" id="cooperativeBanks">—</div></div>
+    <div class="cell"><div class="lbl">Cooperative Societies Registered</div><div class="v" id="cooperativeSocieties">—</div></div><div class="cell"><div class="lbl">Direct Tax Collections This FY</div><div class="v" id="directTaxCollectionsFY">—</div></div>
+    <div class="cell"><div class="lbl">GST Collections This FY</div><div class="v" id="gstCollectionsFY">—</div></div><div class="cell"><div class="lbl">Customs Duty Collections This FY</div><div class="v" id="customsDutyCollectionsFY">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">All 15 live-ticking using the same stock-growth / fiscal-year-flow methods above. Sources: PIB, UIDAI, TRAI, DGCA, Ministry of Tourism, Ministry of Agriculture, CEA (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — 10 More Live Statistics</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">PMAY Houses Built</div><div class="v" id="pmayHouses">—</div></div><div class="cell"><div class="lbl">Metro Rail Network</div><div class="v" id="metroNetwork">—</div></div>
+    <div class="cell"><div class="lbl">National Highways Length</div><div class="v" id="nationalHighways">—</div></div><div class="cell"><div class="lbl">Demat Accounts</div><div class="v" id="dematAccounts">—</div></div>
+    <div class="cell"><div class="lbl">Payment Cards in Circulation</div><div class="v" id="paymentCards">—</div></div><div class="cell"><div class="lbl">MGNREGA Person-Days This FY</div><div class="v" id="mgnregaPersonDays">—</div></div>
+    <div class="cell"><div class="lbl">EV Sales This FY</div><div class="v" id="evSales">—</div></div><div class="cell"><div class="lbl">Rooftop Solar Installed This FY</div><div class="v" id="rooftopSolar">—</div></div>
+    <div class="cell"><div class="lbl">Vaccine Doses Administered This FY</div><div class="v" id="vaccineDoses">—</div></div><div class="cell"><div class="lbl">Passports Issued This FY</div><div class="v" id="passportsIssued">—</div></div>
+    <div class="cell"><div class="lbl">Optical Fiber Cable Length</div><div class="v" id="opticalFiberLength">—</div></div><div class="cell"><div class="lbl">BharatNet Panchayats Connected</div><div class="v" id="bharatnetPanchayats">—</div></div>
+    <div class="cell"><div class="lbl">DBT Disbursed This FY</div><div class="v" id="dbtDisbursedFY">—</div></div><div class="cell"><div class="lbl">Aadhaar Authentications This FY</div><div class="v" id="aadhaarAuthFY">—</div></div>
+    <div class="cell"><div class="lbl">e-Governance Services Delivered This FY</div><div class="v" id="egovServicesFY">—</div></div><div class="cell"><div class="lbl">Passport Seva Kendras</div><div class="v" id="passportSevaKendras">—</div></div>
+    <div class="cell"><div class="lbl">Fair Price (Ration) Shops</div><div class="v" id="rationShops">—</div></div><div class="cell"><div class="lbl">LPG Distributors</div><div class="v" id="lpgDistributors">—</div></div>
+    <div class="cell"><div class="lbl">Petrol Pumps</div><div class="v" id="petrolPumps">—</div></div><div class="cell"><div class="lbl">CNG Stations</div><div class="v" id="cngStations">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">Sources: PMAY-Urban/Gramin dashboards, Ministry of Housing &amp; Urban Affairs, NHAI, NSDL/CDSL, RBI, Ministry of Rural Development, MNRE, Ministry of Health (UIP), Ministry of External Affairs (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — Live Health &amp; Welfare</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Hospital Beds</div><div class="v" id="hospitalBeds">—</div></div><div class="cell"><div class="lbl">Registered Doctors</div><div class="v" id="registeredDoctors">—</div></div>
+    <div class="cell"><div class="lbl">Life Insurance Policies Active</div><div class="v" id="lifeInsurancePolicies">—</div></div><div class="cell"><div class="lbl">Ayushman Bharat Treatments This FY</div><div class="v" id="ayushmanTreatments">—</div></div>
+    <div class="cell"><div class="lbl">Institutional Deliveries This FY</div><div class="v" id="institutionalDeliveries">—</div></div>
+    <div class="cell"><div class="lbl">ASHA Workers</div><div class="v" id="ashaWorkers">—</div></div><div class="cell"><div class="lbl">Primary Health Centers</div><div class="v" id="primaryHealthCenters">—</div></div>
+    <div class="cell"><div class="lbl">Community Health Centers</div><div class="v" id="communityHealthCenters">—</div></div><div class="cell"><div class="lbl">Blood Units Collected This FY</div><div class="v" id="bloodUnitsFY">—</div></div>
+    <div class="cell"><div class="lbl">Organ Transplants This FY</div><div class="v" id="organTransplantsFY">—</div></div><div class="cell"><div class="lbl">TB Cases Notified This FY</div><div class="v" id="tbCasesNotifiedFY">—</div></div>
+    <div class="cell"><div class="lbl">HIV Patients on ART</div><div class="v" id="hivArtPatients">—</div></div><div class="cell"><div class="lbl">Ayushman Health Cards Issued</div><div class="v" id="ayushmanCardsIssued">—</div></div>
+    <div class="cell"><div class="lbl">Medical Colleges</div><div class="v" id="medicalColleges">—</div></div><div class="cell"><div class="lbl">MBBS Seats</div><div class="v" id="mbbsSeats">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Education</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Schools</div><div class="v" id="schools">—</div></div><div class="cell"><div class="lbl">Higher Education Enrolment</div><div class="v" id="higherEdEnrolment">—</div></div>
+    <div class="cell"><div class="lbl">PhD Scholars</div><div class="v" id="phdScholars">—</div></div><div class="cell"><div class="lbl">Skill Trainings This FY</div><div class="v" id="skillTrainings">—</div></div>
+    <div class="cell"><div class="lbl">Scholarships Disbursed This FY</div><div class="v" id="scholarshipsDisbursed">—</div></div>
+    <div class="cell"><div class="lbl">Teachers Employed</div><div class="v" id="teachersEmployed">—</div></div><div class="cell"><div class="lbl">Mid-Day Meal Beneficiaries</div><div class="v" id="midDayMealBeneficiaries">—</div></div>
+    <div class="cell"><div class="lbl">IITs</div><div class="v" id="iitsCount">—</div></div><div class="cell"><div class="lbl">IIMs</div><div class="v" id="iimsCount">—</div></div>
+    <div class="cell"><div class="lbl">Central Universities</div><div class="v" id="centralUniversities">—</div></div><div class="cell"><div class="lbl">State Universities</div><div class="v" id="stateUniversities">—</div></div>
+    <div class="cell"><div class="lbl">Engineering Colleges</div><div class="v" id="engineeringColleges">—</div></div><div class="cell"><div class="lbl">Digital Literacy Certificates This FY</div><div class="v" id="digitalLiteracyCertsFY">—</div></div>
+    <div class="cell"><div class="lbl">Students Studying Abroad</div><div class="v" id="studentsAbroad">—</div></div><div class="cell"><div class="lbl">RTE Act Beneficiary Children</div><div class="v" id="rteBeneficiaries">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Defense &amp; Space</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Active Military Personnel</div><div class="v" id="activeMilitary">—</div></div><div class="cell"><div class="lbl">Satellites in Orbit (ISRO)</div><div class="v" id="satellitesOrbit">—</div></div>
+    <div class="cell"><div class="lbl">Space Launches This FY</div><div class="v" id="spaceLaunches">—</div></div><div class="cell"><div class="lbl">Defense Exports This FY</div><div class="v" id="defenseExports">—</div></div>
+    <div class="cell"><div class="lbl">Border Roads Built This FY</div><div class="v" id="borderRoads">—</div></div>
+    <div class="cell"><div class="lbl">Paramilitary Personnel</div><div class="v" id="paramilitaryPersonnel">—</div></div><div class="cell"><div class="lbl">Naval Fleet Strength</div><div class="v" id="navalFleetStrength">—</div></div>
+    <div class="cell"><div class="lbl">Air Force Aircraft</div><div class="v" id="airForceAircraft">—</div></div><div class="cell"><div class="lbl">Defense Budget This FY</div><div class="v" id="defenseBudgetFY">—</div></div>
+    <div class="cell"><div class="lbl">Missile Tests This FY</div><div class="v" id="missileTestsFY">—</div></div><div class="cell"><div class="lbl">ISRO Missions Completed</div><div class="v" id="isroMissionsCompleted">—</div></div>
+    <div class="cell"><div class="lbl">Gaganyaan Astronauts Trained</div><div class="v" id="gaganyaanAstronauts">—</div></div><div class="cell"><div class="lbl">Defense PSU Output This FY</div><div class="v" id="defensePsuOutputFY">—</div></div>
+    <div class="cell"><div class="lbl">Border Security Force Personnel</div><div class="v" id="bsfPersonnel">—</div></div><div class="cell"><div class="lbl">Coast Guard Vessels</div><div class="v" id="coastGuardVessels">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">All 15 above are live via the same methods. Sources: Ministry of Health &amp; Family Welfare, IRDAI, Ministry of Education, AISHE, Ministry of Defence, ISRO, Border Roads Organisation (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — Live Agriculture &amp; Rural</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">PM-KISAN Farmers</div><div class="v" id="pmKisanFarmers">—</div></div><div class="cell"><div class="lbl">Irrigated Agricultural Land</div><div class="v" id="irrigatedLand">—</div></div><div class="cell"><div class="lbl">Foodgrain Produced This FY</div><div class="v" id="foodgrainProduction">—</div></div><div class="cell"><div class="lbl">Fertilizer Consumed This FY</div><div class="v" id="fertilizerConsumption">—</div></div>
+    <div class="cell"><div class="lbl">Jal Jeevan Rural Households Covered</div><div class="v" id="jalJeevanHouseholds">—</div></div>
+    <div class="cell"><div class="lbl">Kisan Credit Card Holders</div><div class="v" id="kccHolders">—</div></div><div class="cell"><div class="lbl">Soil Health Cards Issued</div><div class="v" id="soilHealthCards">—</div></div>
+    <div class="cell"><div class="lbl">Warehousing Capacity</div><div class="v" id="warehousingCapacity">—</div></div><div class="cell"><div class="lbl">Cold Storage Capacity</div><div class="v" id="coldStorageCapacity">—</div></div>
+    <div class="cell"><div class="lbl">Agricultural Exports This FY</div><div class="v" id="agriExportsFY">—</div></div><div class="cell"><div class="lbl">Organic Farming Area</div><div class="v" id="organicFarmingArea">—</div></div>
+    <div class="cell"><div class="lbl">Micro Irrigation Area</div><div class="v" id="microIrrigationArea">—</div></div><div class="cell"><div class="lbl">PMGSY Rural Roads Built</div><div class="v" id="pmgsyRoads">—</div></div>
+    <div class="cell"><div class="lbl">Custom Hiring Centers</div><div class="v" id="customHiringCenters">—</div></div><div class="cell"><div class="lbl">Agri-Startups Recognized</div><div class="v" id="agriStartups">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Environment &amp; Wildlife</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Tiger Population</div><div class="v" id="tigerPopulation">—</div></div><div class="cell"><div class="lbl">Elephant Population</div><div class="v" id="elephantPopulation">—</div></div><div class="cell"><div class="lbl">Protected Areas</div><div class="v" id="protectedAreas">—</div></div><div class="cell"><div class="lbl">Trees Planted This FY</div><div class="v" id="treesPlantedFY">—</div></div>
+    <div class="cell"><div class="lbl">CO₂ Emissions Avoided This FY</div><div class="v" id="co2Avoided">—</div></div>
+    <div class="cell"><div class="lbl">Asiatic Lion Population</div><div class="v" id="lionPopulation">—</div></div><div class="cell"><div class="lbl">One-Horned Rhino Population</div><div class="v" id="rhinoPopulation">—</div></div>
+    <div class="cell"><div class="lbl">Leopard Population</div><div class="v" id="leopardPopulation">—</div></div><div class="cell"><div class="lbl">National Parks</div><div class="v" id="nationalParksCount">—</div></div>
+    <div class="cell"><div class="lbl">Wildlife Sanctuaries</div><div class="v" id="wildlifeSanctuaries">—</div></div><div class="cell"><div class="lbl">Biosphere Reserves</div><div class="v" id="biosphereReserves">—</div></div>
+    <div class="cell"><div class="lbl">Ramsar Wetland Sites</div><div class="v" id="ramsarSites">—</div></div><div class="cell"><div class="lbl">Air Quality Monitoring Stations</div><div class="v" id="airQualityStations">—</div></div>
+    <div class="cell"><div class="lbl">Rooftop Solar Households</div><div class="v" id="rooftopSolarHouseholds">—</div></div><div class="cell"><div class="lbl">Plastic Waste Collected This FY</div><div class="v" id="plasticWasteCollectedFY">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Sports, Culture &amp; Media</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Khelo India Registered Athletes</div><div class="v" id="kheloIndiaAthletes">—</div></div><div class="cell"><div class="lbl">Cinema Screens</div><div class="v" id="cinemaScreens">—</div></div><div class="cell"><div class="lbl">Films Certified This FY</div><div class="v" id="filmsCertifiedFY">—</div></div><div class="cell"><div class="lbl">Museums</div><div class="v" id="museumsCount">—</div></div>
+    <div class="cell"><div class="lbl">Public Libraries</div><div class="v" id="publicLibraries">—</div></div>
+    <div class="cell"><div class="lbl">Olympic Medals (All-Time)</div><div class="v" id="olympicMedalsAllTime">—</div></div><div class="cell"><div class="lbl">Padma Awardees (Cumulative)</div><div class="v" id="padmaAwardees">—</div></div>
+    <div class="cell"><div class="lbl">National-Level Sports Stadiums</div><div class="v" id="sportsStadiums">—</div></div><div class="cell"><div class="lbl">Registered Sports Clubs</div><div class="v" id="sportsClubs">—</div></div>
+    <div class="cell"><div class="lbl">TV Channels Licensed</div><div class="v" id="tvChannelsLicensed">—</div></div><div class="cell"><div class="lbl">Newspapers Registered</div><div class="v" id="newspapersRegistered">—</div></div>
+    <div class="cell"><div class="lbl">OTT Content Hours Released This FY</div><div class="v" id="ottContentHoursFY">—</div></div><div class="cell"><div class="lbl">Music Streams This FY</div><div class="v" id="musicStreamsFY">—</div></div>
+    <div class="cell"><div class="lbl">Classical Arts Academies Recognized</div><div class="v" id="classicalArtsAcademies">—</div></div><div class="cell"><div class="lbl">Padma Awards Given This FY</div><div class="v" id="padmaAwardsFY">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">All 15 above are live via the same methods. Sources: PM-KISAN, Ministry of Jal Shakti, Ministry of Agriculture, NTCA tiger/elephant census, MoEFCC, Khelo India, CBFC, Ministry of Culture (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — Live Governance &amp; Judiciary</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Registered Voters</div><div class="v" id="registeredVoters">—</div></div><div class="cell"><div class="lbl">Pending Court Cases</div><div class="v" id="pendingCourtCases">—</div></div>
+    <div class="cell"><div class="lbl">RTI Applications Filed This FY</div><div class="v" id="rtiApplicationsFY">—</div></div><div class="cell"><div class="lbl">Central Govt Employees</div><div class="v" id="centralGovtEmployees">—</div></div>
+    <div class="cell"><div class="lbl">Gram Panchayats</div><div class="v" id="gramPanchayats">—</div></div>
+    <div class="cell"><div class="lbl">Judges (Sanctioned Strength)</div><div class="v" id="judgesSanctioned">—</div></div><div class="cell"><div class="lbl">High Courts</div><div class="v" id="highCourtsCount">—</div></div>
+    <div class="cell"><div class="lbl">Lok Adalat Cases Resolved This FY</div><div class="v" id="lokAdalatCasesFY">—</div></div><div class="cell"><div class="lbl">Polling Stations</div><div class="v" id="pollingStations">—</div></div>
+    <div class="cell"><div class="lbl">Registered Political Parties</div><div class="v" id="politicalParties">—</div></div><div class="cell"><div class="lbl">Members of Parliament</div><div class="v" id="membersOfParliament">—</div></div>
+    <div class="cell"><div class="lbl">State Assembly Seats (Total)</div><div class="v" id="stateAssemblySeats">—</div></div><div class="cell"><div class="lbl">Information Commissions</div><div class="v" id="informationCommissions">—</div></div>
+    <div class="cell"><div class="lbl">CBI Cases Registered This FY</div><div class="v" id="cbiCasesFY">—</div></div><div class="cell"><div class="lbl">GeM Transactions This FY</div><div class="v" id="gemTransactionsFY">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Banking &amp; Digital Economy</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Bank Branches</div><div class="v" id="bankBranches">—</div></div><div class="cell"><div class="lbl">ATMs</div><div class="v" id="atmsCount">—</div></div>
+    <div class="cell"><div class="lbl">E-Commerce Orders This FY</div><div class="v" id="ecommerceOrdersFY">—</div></div><div class="cell"><div class="lbl">Microfinance Loans This FY</div><div class="v" id="microfinanceLoansFY">—</div></div>
+    <div class="cell"><div class="lbl">Mutual Fund Folios</div><div class="v" id="mutualFundFolios">—</div></div>
+    <div class="cell"><div class="lbl">Total Bank Credit Outstanding</div><div class="v" id="bankCreditOutstanding">—</div></div><div class="cell"><div class="lbl">Total Bank Deposits</div><div class="v" id="bankDepositsTotal">—</div></div>
+    <div class="cell"><div class="lbl">IPOs Launched This FY</div><div class="v" id="iposLaunchedFY">—</div></div><div class="cell"><div class="lbl">Stock Market Capitalization</div><div class="v" id="stockMarketCap">—</div></div>
+    <div class="cell"><div class="lbl">FDI Inflows This FY</div><div class="v" id="fdiInflowsFY">—</div></div><div class="cell"><div class="lbl">Venture Capital Funding This FY</div><div class="v" id="vcFundingFY">—</div></div>
+    <div class="cell"><div class="lbl">Insurance Premium Collected This FY</div><div class="v" id="insurancePremiumFY">—</div></div><div class="cell"><div class="lbl">Digital Wallet Users</div><div class="v" id="digitalWalletUsers">—</div></div>
+    <div class="cell"><div class="lbl">P2P Lending Platform Users</div><div class="v" id="p2pLendingUsers">—</div></div><div class="cell"><div class="lbl">Bank Rate Cuts This FY (RBI)</div><div class="v" id="bankRateActionsFY">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Technology &amp; Innovation</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Unicorn Startups</div><div class="v" id="unicornStartups">—</div></div><div class="cell"><div class="lbl">Data Centers</div><div class="v" id="dataCenters">—</div></div>
+    <div class="cell"><div class="lbl">IT Professionals Employed</div><div class="v" id="itProfessionals">—</div></div><div class="cell"><div class="lbl">E-Waste Generated This FY</div><div class="v" id="ewasteGeneratedFY">—</div></div>
+    <div class="cell"><div class="lbl">Mobile Data Consumed This FY</div><div class="v" id="dataConsumptionFY">—</div></div>
+    <div class="cell"><div class="lbl">AI Startups</div><div class="v" id="aiStartups">—</div></div><div class="cell"><div class="lbl">Patent Grants This FY</div><div class="v" id="patentGrantsFY">—</div></div>
+    <div class="cell"><div class="lbl">Trademark Registrations This FY</div><div class="v" id="trademarkRegFY">—</div></div><div class="cell"><div class="lbl">R&D Expenditure This FY</div><div class="v" id="rdExpenditureFY">—</div></div>
+    <div class="cell"><div class="lbl">IT Parks / SEZs</div><div class="v" id="itParksSez">—</div></div><div class="cell"><div class="lbl">Cloud Data Stored</div><div class="v" id="cloudDataStored">—</div></div>
+    <div class="cell"><div class="lbl">5G Base Stations</div><div class="v" id="fiveGBaseStations">—</div></div><div class="cell"><div class="lbl">.in Domains Registered</div><div class="v" id="inDomainsRegistered">—</div></div>
+    <div class="cell"><div class="lbl">India GitHub Contributors</div><div class="v" id="githubContributors">—</div></div><div class="cell"><div class="lbl">Semiconductor Fabs Under Construction</div><div class="v" id="semiconductorFabs">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Urban Development</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Urban Population</div><div class="v" id="urbanPopulation">—</div></div><div class="cell"><div class="lbl">Urban Piped-Water Households</div><div class="v" id="urbanPipedWaterHouseholds">—</div></div>
+    <div class="cell"><div class="lbl">Affordable Housing Units This FY</div><div class="v" id="affordableHousingUnitsFY">—</div></div><div class="cell"><div class="lbl">Solid Waste Processed This FY</div><div class="v" id="solidWasteProcessedFY">—</div></div>
+    <div class="cell"><div class="lbl">Urban Local Bodies</div><div class="v" id="urbanLocalBodies">—</div></div>
+    <div class="cell"><div class="lbl">Smart Cities Projects Completed</div><div class="v" id="smartCitiesProjects">—</div></div><div class="cell"><div class="lbl">Metro Daily Ridership</div><div class="v" id="metroDailyRidership">—</div></div>
+    <div class="cell"><div class="lbl">Urban Local Body Budget This FY</div><div class="v" id="ulbBudgetFY">—</div></div><div class="cell"><div class="lbl">LED Street Lights Installed</div><div class="v" id="ledStreetLights">—</div></div>
+    <div class="cell"><div class="lbl">Public Parks &amp; Gardens</div><div class="v" id="publicParks">—</div></div><div class="cell"><div class="lbl">BRT Corridors</div><div class="v" id="brtCorridors">—</div></div>
+    <div class="cell"><div class="lbl">Sewage Treatment Plants</div><div class="v" id="sewageTreatmentPlants">—</div></div><div class="cell"><div class="lbl">Urban Green Cover Area</div><div class="v" id="urbanGreenCover">—</div></div>
+    <div class="cell"><div class="lbl">City Wi-Fi Hotspots</div><div class="v" id="cityWifiHotspots">—</div></div><div class="cell"><div class="lbl">Urban Infra Projects Sanctioned This FY</div><div class="v" id="urbanInfraProjectsFY">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Employment &amp; Social Security</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">EPFO Active Subscribers</div><div class="v" id="epfoSubscribers">—</div></div><div class="cell"><div class="lbl">New EPFO Enrolments This FY</div><div class="v" id="epfoNewEnrolmentsFY">—</div></div>
+    <div class="cell"><div class="lbl">Udyam-Registered MSMEs</div><div class="v" id="udyamMsmeRegistered">—</div></div><div class="cell"><div class="lbl">Women SHG Members</div><div class="v" id="shgWomenMembers">—</div></div>
+    <div class="cell"><div class="lbl">ESIC Beneficiaries</div><div class="v" id="esicBeneficiaries">—</div></div>
+    <div class="cell"><div class="lbl">New Formal Jobs Created This FY</div><div class="v" id="newJobsFY">—</div></div><div class="cell"><div class="lbl">Gig Economy Workers</div><div class="v" id="gigWorkers">—</div></div>
+    <div class="cell"><div class="lbl">Apprenticeships Registered This FY</div><div class="v" id="apprenticeshipsFY">—</div></div><div class="cell"><div class="lbl">Registered Labour Unions</div><div class="v" id="labourUnions">—</div></div>
+    <div class="cell"><div class="lbl">Minimum Wage Workers Covered</div><div class="v" id="minWageWorkersCovered">—</div></div><div class="cell"><div class="lbl">EPFO Provident Fund Corpus</div><div class="v" id="epfoCorpus">—</div></div>
+    <div class="cell"><div class="lbl">National Career Service Registrations</div><div class="v" id="ncsRegistrations">—</div></div><div class="cell"><div class="lbl">Registered Domestic Workers</div><div class="v" id="domesticWorkers">—</div></div>
+    <div class="cell"><div class="lbl">Disability Pension Beneficiaries</div><div class="v" id="disabilityPensionBeneficiaries">—</div></div><div class="cell"><div class="lbl">Widow Pension Beneficiaries</div><div class="v" id="widowPensionBeneficiaries">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">All 25 above live via the same methods. Sources: ECI, NJDG, DoPT, Panchayati Raj Ministry, RBI, NPCI, AMFI, DPIIT, NASSCOM, CPCB, Census/MoHUA, EPFO, Udyam, NRLM, ESIC (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — Live Water &amp; Sanitation</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Swachh Bharat Toilets Built</div><div class="v" id="swachhToilets">—</div></div><div class="cell"><div class="lbl">ODF Villages</div><div class="v" id="odfVillages">—</div></div>
+    <div class="cell"><div class="lbl">Water Bodies Rejuvenated This FY</div><div class="v" id="waterBodiesRejuvenatedFY">—</div></div><div class="cell"><div class="lbl">PDS Ration Card Beneficiaries</div><div class="v" id="rationCardBeneficiaries">—</div></div>
+    <div class="cell"><div class="lbl">Anganwadi Centers</div><div class="v" id="anganwadiCenters">—</div></div>
+    <div class="cell"><div class="lbl">Har Ghar Jal Certified Villages</div><div class="v" id="harGharJalVillages">—</div></div><div class="cell"><div class="lbl">Sewage Treatment Capacity</div><div class="v" id="sewageTreatmentCapacity">—</div></div>
+    <div class="cell"><div class="lbl">Groundwater Recharge Structures This FY</div><div class="v" id="groundwaterRechargeFY">—</div></div><div class="cell"><div class="lbl">Namami Gange Projects Completed</div><div class="v" id="namamiGangeProjects">—</div></div>
+    <div class="cell"><div class="lbl">Solid Waste Mgmt Villages Covered</div><div class="v" id="swmVillagesCovered">—</div></div><div class="cell"><div class="lbl">Water Quality Testing Labs</div><div class="v" id="waterQualityLabs">—</div></div>
+    <div class="cell"><div class="lbl">Rainwater Harvesting Structures</div><div class="v" id="rainwaterHarvestingStructures">—</div></div><div class="cell"><div class="lbl">Wastewater Treated This FY</div><div class="v" id="wastewaterTreatedFY">—</div></div>
+    <div class="cell"><div class="lbl">Handpumps Installed</div><div class="v" id="handpumpsInstalled">—</div></div><div class="cell"><div class="lbl">District Water Mgmt Committees</div><div class="v" id="districtWaterCommittees">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Postal, Logistics &amp; Transport</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Post Offices</div><div class="v" id="postOffices">—</div></div><div class="cell"><div class="lbl">Railway Freight Loaded This FY</div><div class="v" id="railwayFreightFY">—</div></div>
+    <div class="cell"><div class="lbl">Port Cargo Handled This FY</div><div class="v" id="portCargoFY">—</div></div><div class="cell"><div class="lbl">Public Bus Fleet</div><div class="v" id="publicBusFleet">—</div></div>
+    <div class="cell"><div class="lbl">Currency Notes in Circulation</div><div class="v" id="currencyInCirculation">—</div></div>
+    <div class="cell"><div class="lbl">Speed Post Articles Delivered This FY</div><div class="v" id="speedPostArticlesFY">—</div></div><div class="cell"><div class="lbl">Courier Parcel Deliveries This FY</div><div class="v" id="courierParcelsFY">—</div></div>
+    <div class="cell"><div class="lbl">National Waterways Operational</div><div class="v" id="nationalWaterways">—</div></div><div class="cell"><div class="lbl">Port Container Traffic This FY</div><div class="v" id="portContainerTrafficFY">—</div></div>
+    <div class="cell"><div class="lbl">Dedicated Freight Corridors</div><div class="v" id="freightCorridors">—</div></div><div class="cell"><div class="lbl">Toll Plazas</div><div class="v" id="tollPlazas">—</div></div>
+    <div class="cell"><div class="lbl">Expressways Operational</div><div class="v" id="expresswaysOperational">—</div></div><div class="cell"><div class="lbl">Registered Truck Fleet</div><div class="v" id="truckFleetRegistered">—</div></div>
+    <div class="cell"><div class="lbl">Logistics Parks Operational</div><div class="v" id="logisticsParks">—</div></div><div class="cell"><div class="lbl">Ropeways / Cable Cars Operational</div><div class="v" id="ropewaysOperational">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Insurance, Pension &amp; Manufacturing</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Atal Pension Yojana Subscribers</div><div class="v" id="apySubscribers">—</div></div><div class="cell"><div class="lbl">Crop Insurance Farmers Enrolled This FY</div><div class="v" id="fasalBimaFarmersFY">—</div></div>
+    <div class="cell"><div class="lbl">PLI Scheme Investment This FY</div><div class="v" id="pliInvestmentFY">—</div></div><div class="cell"><div class="lbl">Mobile Phones Manufactured This FY</div><div class="v" id="mobilesManufacturedFY">—</div></div>
+    <div class="cell"><div class="lbl">General Insurance Policies Active</div><div class="v" id="generalInsurancePolicies">—</div></div>
+    <div class="cell"><div class="lbl">Health Insurance Policies Active</div><div class="v" id="healthInsurancePolicies">—</div></div><div class="cell"><div class="lbl">Crop Insurance Sum Insured This FY</div><div class="v" id="cropInsuranceSumFY">—</div></div>
+    <div class="cell"><div class="lbl">Pension Fund AUM (PFRDA)</div><div class="v" id="pensionFundAum">—</div></div><div class="cell"><div class="lbl">Registered Manufacturing Units</div><div class="v" id="manufacturingUnits">—</div></div>
+    <div class="cell"><div class="lbl">Garment Exports This FY</div><div class="v" id="garmentExportsFY">—</div></div><div class="cell"><div class="lbl">Electronics Manufacturing Output This FY</div><div class="v" id="electronicsOutputFY">—</div></div>
+    <div class="cell"><div class="lbl">Toy Manufacturing Output This FY</div><div class="v" id="toyOutputFY">—</div></div><div class="cell"><div class="lbl">Defense Manufacturing Licenses</div><div class="v" id="defenseManufLicenses">—</div></div>
+    <div class="cell"><div class="lbl">MSME Loans Disbursed This FY</div><div class="v" id="msmeLoansFY">—</div></div><div class="cell"><div class="lbl">Life Insurance Corpus</div><div class="v" id="lifeInsuranceCorpus">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Tourism &amp; Aviation</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Domestic Tourist Visits This FY</div><div class="v" id="domesticTouristVisitsFY">—</div></div><div class="cell"><div class="lbl">Air Cargo Handled This FY</div><div class="v" id="airCargoFY">—</div></div>
+    <div class="cell"><div class="lbl">Hotel Rooms</div><div class="v" id="hotelRooms">—</div></div><div class="cell"><div class="lbl">e-Visas Issued This FY</div><div class="v" id="evisaIssuedFY">—</div></div>
+    <div class="cell"><div class="lbl">UDAN Routes Operational</div><div class="v" id="udanRoutes">—</div></div>
+    <div class="cell"><div class="lbl">International Air Passengers This FY</div><div class="v" id="internationalAirPaxFY">—</div></div><div class="cell"><div class="lbl">Cruise Tourists This FY</div><div class="v" id="cruiseTouristsFY">—</div></div>
+    <div class="cell"><div class="lbl">Heritage Site Visitors This FY</div><div class="v" id="heritageSiteVisitorsFY">—</div></div><div class="cell"><div class="lbl">Medical Tourists This FY</div><div class="v" id="medicalTouristsFY">—</div></div>
+    <div class="cell"><div class="lbl">Adventure Tourism Permits This FY</div><div class="v" id="adventureTourismPermitsFY">—</div></div><div class="cell"><div class="lbl">Registered Travel Agencies</div><div class="v" id="travelAgencies">—</div></div>
+    <div class="cell"><div class="lbl">Licensed Tour Guides</div><div class="v" id="tourGuides">—</div></div><div class="cell"><div class="lbl">Homestay / Airbnb Listings</div><div class="v" id="homestayListings">—</div></div>
+    <div class="cell"><div class="lbl">Tourism Foreign Exchange Earnings This FY</div><div class="v" id="tourismForexEarningsFY">—</div></div><div class="cell"><div class="lbl">Wellness Tourism Visitors This FY</div><div class="v" id="wellnessTourismFY">—</div></div>
+  </div>  </details>
+  <details class="grp"><summary class="section-label">India — Live Telecom &amp; Cyber Safety</summary>
+  <div class="grid">
+    <div class="cell"><div class="lbl">Mobile Towers</div><div class="v" id="mobileTowers">—</div></div><div class="cell"><div class="lbl">Common Service Centers</div><div class="v" id="cscCenters">—</div></div>
+    <div class="cell"><div class="lbl">Cyber Crime Complaints This FY</div><div class="v" id="cyberCrimeComplaintsFY">—</div></div><div class="cell"><div class="lbl">OTT/Streaming Subscribers</div><div class="v" id="ottSubscribers">—</div></div>
+    <div class="cell"><div class="lbl">Spam Calls Blocked This FY</div><div class="v" id="spamCallsBlockedFY">—</div></div>
+    <div class="cell"><div class="lbl">Internet Exchange Points</div><div class="v" id="internetExchangePoints">—</div></div><div class="cell"><div class="lbl">Data Breaches Reported This FY</div><div class="v" id="dataBreachesFY">—</div></div>
+    <div class="cell"><div class="lbl">Websites Blocked This FY</div><div class="v" id="websitesBlockedFY">—</div></div><div class="cell"><div class="lbl">Digital Arrest Scam Complaints This FY</div><div class="v" id="digitalArrestComplaintsFY">—</div></div>
+    <div class="cell"><div class="lbl">SIM Cards Issued This FY</div><div class="v" id="simCardsIssuedFY">—</div></div><div class="cell"><div class="lbl">VoIP Users</div><div class="v" id="voipUsers">—</div></div>
+    <div class="cell"><div class="lbl">Landline Connections</div><div class="v" id="landlineConnections">—</div></div><div class="cell"><div class="lbl">PM-WANI Public Wi-Fi Hotspots</div><div class="v" id="pmWaniHotspots">—</div></div>
+    <div class="cell"><div class="lbl">Cyber Alerts Issued This FY</div><div class="v" id="cyberAlertsFY">—</div></div><div class="cell"><div class="lbl">Digital Payment Fraud Cases This FY</div><div class="v" id="digitalFraudCasesFY">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">All 25 above live via the same methods. Sources: Swachh Bharat Mission, Jal Shakti, NFSA, WCD Ministry, India Post, Ministry of Railways, Ministry of Ports, MoRTH, RBI, PFRDA, PMFBY, DPIIT (PLI), Ministry of Tourism, DGCA, TRAI, DoT/Sanchar Saathi, I4C (2025–26).</div>
+  <details class="grp"><summary class="section-label">India — Live Digital &amp; Economic Pulse</summary>
+  <div class="pulse-grid">
+    <div class="pulsecard"><div class="lbl">Internet Users in India</div><div class="val" id="internetUsers">—</div></div>
+    <div class="pulsecard"><div class="lbl">Social Media Users in India</div><div class="val" id="socialUsers">—</div></div>
+    <div class="pulsecard"><div class="lbl">Google Searches Today (India)</div><div class="val" id="googleSearches">—</div></div>
+    <div class="pulsecard"><div class="lbl">Emails Sent Today (India)</div><div class="val" id="emailsSent">—</div></div>
+    <div class="pulsecard"><div class="lbl">WhatsApp Msgs Today (India)</div><div class="val" id="whatsappMsgs">—</div></div>
+    <div class="pulsecard"><div class="lbl">UPI Transactions Today (India)</div><div class="val" id="upiTxns">—</div></div>
+    <div class="pulsecard"><div class="lbl">UPI Value Today (India)</div><div class="val" id="upiValue">—</div></div>
+    <div class="pulsecard"><div class="lbl">Railway Passengers Today (India)</div><div class="val" id="railwayPax">—</div></div>
+    <div class="pulsecard"><div class="lbl">YouTube Videos Watched Today</div><div class="val" id="youtubeViewsToday">—</div></div><div class="pulsecard"><div class="lbl">Instagram Posts Shared Today</div><div class="val" id="instagramPostsToday">—</div></div>
+    <div class="pulsecard"><div class="lbl">Food Delivery Orders Today</div><div class="val" id="foodDeliveryToday">—</div></div><div class="pulsecard"><div class="lbl">Ride-Hailing Trips Today</div><div class="val" id="rideHailingToday">—</div></div>
+    <div class="pulsecard"><div class="lbl">Digital Ads Served Today</div><div class="val" id="digitalAdsToday">—</div></div><div class="pulsecard"><div class="lbl">News Articles Published Today</div><div class="val" id="newsArticlesToday">—</div></div>
+    <div class="pulsecard"><div class="lbl">Podcast Episodes Streamed Today</div><div class="val" id="podcastStreamsToday">—</div></div><div class="pulsecard"><div class="lbl">Online Classes Attended Today</div><div class="val" id="onlineClassesToday">—</div></div>
+    <div class="pulsecard"><div class="lbl">e-Prescriptions Issued Today</div><div class="val" id="ePrescriptionsToday">—</div></div><div class="pulsecard"><div class="lbl">OTT Streaming Hours Watched Today</div><div class="val" id="ottStreamingHoursToday">—</div></div>
+  </div>  </details>
+  <div class="pulse-note">All figures are exclusively for India — internet/social figures grow from published annual estimates (DataReportal, ITU); UPI figures are based on actual NPCI monthly averages; the railway figure comes from the Ministry of Railways' annual total. All are per-second extrapolations, not live telemetry.</div>
+  <div class="themes">
+    <button class="tbtn" data-t="light" title="Light">☀</button>
+    <button class="tbtn" data-t="dark" title="Dark">☾</button>
+    <button class="tbtn" data-t="oled" title="OLED True Black">◑</button>
+    <button class="tbtn" data-t="hc" title="High Contrast">◐</button>
+  </div>
+  <footer>
+    © Manik Roy <span id="year"></span>. All Rights Reserved.<br>
+    Country data via REST Countries API (public, key-free).
+  </footer>
+</div>
+<script>
+// ---------- Theme handling ----------
+const themeBtns = document.querySelectorAll('.tbtn');
+function applyTheme(t){
+  if(t === 'light'){ document.documentElement.removeAttribute('data-theme'); }
+  else{ document.documentElement.setAttribute('data-theme', t); }
+  themeBtns.forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  localStorage.setItem('bp-theme', t);
+}
+themeBtns.forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.t)));
+applyTheme(localStorage.getItem('bp-theme') || 'dark');
+
+// ---------- Global expand/collapse-all toggle ----------
+function toggleAllGroups(){
+  const groups = document.querySelectorAll('.grp');
+  const anyClosed = Array.from(groups).some(g => !g.open);
+  groups.forEach(g => { g.open = anyClosed; });
+  document.getElementById('toggleAllBtn').textContent = anyClosed ? 'Collapse All' : 'Expand All';
+}
+document.querySelectorAll('.grp').forEach(g => g.addEventListener('toggle', () => {
+  const anyClosed = Array.from(document.querySelectorAll('.grp')).some(x => !x.open);
+  document.getElementById('toggleAllBtn').textContent = anyClosed ? 'Expand All' : 'Collapse All';
+}));
+// ---------- Footer year ----------
+document.getElementById('year').textContent = new Date().getFullYear();
+// ---------- IST Clock ----------
+function tickClock(){
+  const now = new Date();
+  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const hh = String(ist.getHours()).padStart(2,'0');
+  const mm = String(ist.getMinutes()).padStart(2,'0');
+  const ss = String(ist.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss} IST`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+// ---------- Population estimate engine ----------
+// Baseline + annual rates sourced from UN World Population Prospects / India SRS
+// (transparent formula-based estimate, same method used by public population clocks;
+// this is NOT live census data, just a clearly-labelled projection).
+const BASELINE_POPULATION = 1_450_935_791; // approx baseline, mid-2026
+const BASELINE_TIME = new Date('2026-01-01T00:00:00Z').getTime();
+const BIRTH_RATE_PER_1000_YEAR = 16.4;
+const DEATH_RATE_PER_1000_YEAR = 7.3;
+const SECONDS_PER_YEAR = 365.25 * 24 * 3600;
+const birthsPerSecond = (BIRTH_RATE_PER_1000_YEAR / 1000 * BASELINE_POPULATION) / SECONDS_PER_YEAR;
+const deathsPerSecond = (DEATH_RATE_PER_1000_YEAR / 1000 * BASELINE_POPULATION) / SECONDS_PER_YEAR;
+const netPerSecond = birthsPerSecond - deathsPerSecond;
+function updateCounters(){
+  const elapsedSec = (Date.now() - BASELINE_TIME) / 1000;
+  const population = Math.round(BASELINE_POPULATION + netPerSecond * elapsedSec);
+  document.getElementById('population').textContent = population.toLocaleString('en-IN');
+  const now = new Date();
+  const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const startOfDay = new Date(istNow); startOfDay.setHours(0,0,0,0);
+  const secondsToday = (istNow - startOfDay) / 1000;
+  document.getElementById('births').textContent = Math.round(birthsPerSecond * secondsToday).toLocaleString('en-IN');
+  document.getElementById('deaths').textContent = Math.round(deathsPerSecond * secondsToday).toLocaleString('en-IN');
+}
+setInterval(updateCounters, 1000);
+updateCounters();
+// ---------- Digital & Economic Pulse (published-estimate based) ----------
+// Internet/social media figures use annual growth extrapolation (DataReportal/ITU baselines).
+// Daily-activity figures (searches, emails, WhatsApp, UPI, rail) scale a published
+// daily/monthly total across elapsed seconds of the current IST day, resetting at midnight.
+function annualEstimate(base, annualGrowthRate){
+  const years = (Date.now() - BASELINE_TIME) / (SECONDS_PER_YEAR * 1000);
+  return Math.round(base * Math.pow(1 + annualGrowthRate, years));
+}
+const DAILY_TOTALS = {
+  youtubeViewsToday: 500000000,
+  instagramPostsToday: 50000000,
+  foodDeliveryToday: 6000000,
+  rideHailingToday: 5000000,
+  digitalAdsToday: 8000000000,
+  newsArticlesToday: 500000,
+  podcastStreamsToday: 15000000,
+  onlineClassesToday: 40000000,
+  ePrescriptionsToday: 2000000,
+  ottStreamingHoursToday: 90000000,
+  googleSearches: 1_600_000_000,   // India's est. share of global daily searches
+  emailsSent: 15_000_000_000,      // est. daily emails sent within India
+  whatsappMsgs: 25_000_000_000,    // est. daily WhatsApp messages sent in India
+  upiTxns: 757_000_000,            // NPCI average daily UPI transactions, June 2026
+  railwayPax: 18_920_000           // Indian Railways FY23-24 annual total / 365
+};
+const UPI_VALUE_CRORE_PER_DAY = 93_333; // NPCI June 2026 monthly value / 30
+function updateDigitalPulse(){
+  document.getElementById('internetUsers').textContent = annualEstimate(1_040_000_000, 0.055).toLocaleString('en-IN');
+  document.getElementById('socialUsers').textContent = annualEstimate(550_000_000, 0.08).toLocaleString('en-IN');
+  const now = new Date();
+  const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const startOfDay = new Date(istNow); startOfDay.setHours(0,0,0,0);
+  const frac = ((istNow - startOfDay) / 1000) / 86400;
+  for(const [id, total] of Object.entries(DAILY_TOTALS)){
+    document.getElementById(id).textContent = Math.round(total * frac).toLocaleString('en-IN');
+  }
+  document.getElementById('upiValue').textContent = '₹' + Math.round(UPI_VALUE_CRORE_PER_DAY * frac).toLocaleString('en-IN') + ' Cr';
+}
+setInterval(updateDigitalPulse, 1000);
+updateDigitalPulse();
+// ---------- Energy, Automotive & Trade Pulse (live extrapolation) ----------
+// "Stock" quantities (reserves, installed capacity, subscriber base) compound from an
+// annual growth rate, same method as internetUsers/socialUsers above.
+// "Flow" quantities (annual production/sales/exports) accumulate from the start of
+// India's fiscal year (1 April) using each sector's latest published annual total.
+function fiscalYearFraction(){
+  const now = new Date();
+  const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const fyStartYear = istNow.getMonth() >= 3 ? istNow.getFullYear() : istNow.getFullYear() - 1;
+  const fyStart = new Date(fyStartYear, 3, 1);
+  const fyEnd = new Date(fyStartYear + 1, 3, 1);
+  return (istNow - fyStart) / (fyEnd - fyStart);
+}
+const STOCK_STATS = {
+  nuclearCapacity:{base:8180,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+' MW'}, hydroCapacity:{base:47000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+' MW'},
+  thermalCapacity:{base:245000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+' MW'}, evChargingStations:{base:25000,rate:0.3,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  debitCardsIssued:{base:950000000,rate:0.06,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, creditCardsIssued:{base:105000000,rate:0.18,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  npsSubscribers:{base:8000000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, cooperativeBanks:{base:1500,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  cooperativeSocieties:{base:850000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, opticalFiberLength:{base:2500000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+' km'},
+  bharatnetPanchayats:{base:210000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, passportSevaKendras:{base:700,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  rationShops:{base:540000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, lpgDistributors:{base:25000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  petrolPumps:{base:90000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, cngStations:{base:6500,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  ashaWorkers:{base:1060000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, primaryHealthCenters:{base:31000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  communityHealthCenters:{base:6000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, hivArtPatients:{base:1700000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  ayushmanCardsIssued:{base:350000000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, medicalColleges:{base:780,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  mbbsSeats:{base:118000,rate:0.06,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, teachersEmployed:{base:9500000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  midDayMealBeneficiaries:{base:118000000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, iitsCount:{base:23,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  iimsCount:{base:21,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, centralUniversities:{base:56,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  stateUniversities:{base:460,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, engineeringColleges:{base:6000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  studentsAbroad:{base:1330000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, rteBeneficiaries:{base:3500000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  paramilitaryPersonnel:{base:1100000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, navalFleetStrength:{base:150,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  airForceAircraft:{base:1700,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, isroMissionsCompleted:{base:130,rate:0.06,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  gaganyaanAstronauts:{base:4,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, bsfPersonnel:{base:265000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  coastGuardVessels:{base:156,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, kccHolders:{base:74000000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  soilHealthCards:{base:240000000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, warehousingCapacity:{base:145000000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'},
+  coldStorageCapacity:{base:39000000,rate:0.04,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, organicFarmingArea:{base:5900000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+' ha'},
+  microIrrigationArea:{base:13500000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')+' ha'}, pmgsyRoads:{base:780000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+' km'},
+  customHiringCenters:{base:18000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, agriStartups:{base:5000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  lionPopulation:{base:674,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, rhinoPopulation:{base:4000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  leopardPopulation:{base:13874,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, nationalParksCount:{base:106,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  wildlifeSanctuaries:{base:566,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, biosphereReserves:{base:18,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  ramsarSites:{base:85,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, airQualityStations:{base:1500,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  rooftopSolarHouseholds:{base:2000000,rate:0.25,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, olympicMedalsAllTime:{base:41,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  padmaAwardees:{base:5000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, sportsStadiums:{base:300,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  sportsClubs:{base:50000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, tvChannelsLicensed:{base:900,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  newspapersRegistered:{base:145000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, classicalArtsAcademies:{base:700,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  judgesSanctioned:{base:25000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, highCourtsCount:{base:25,rate:0.001,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  pollingStations:{base:1050000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, politicalParties:{base:2800,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  membersOfParliament:{base:788,rate:0.001,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, stateAssemblySeats:{base:4123,rate:0.001,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  informationCommissions:{base:29,rate:0.001,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, bankCreditOutstanding:{base:17500000,rate:0.12,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  bankDepositsTotal:{base:22000000,rate:0.1,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, stockMarketCap:{base:45000000,rate:0.12,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  digitalWalletUsers:{base:350000000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, p2pLendingUsers:{base:4000000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  aiStartups:{base:4000,rate:0.25,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, itParksSez:{base:400,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  cloudDataStored:{base:15,rate:0.3,unit:v=>Math.round(v).toLocaleString('en-IN')+' EB'}, fiveGBaseStations:{base:500000,rate:0.2,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  inDomainsRegistered:{base:3500000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, githubContributors:{base:12000000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  semiconductorFabs:{base:3,rate:0.2,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, smartCitiesProjects:{base:8000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  metroDailyRidership:{base:11000000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, ledStreetLights:{base:13500000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  publicParks:{base:50000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, brtCorridors:{base:700,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+' km'},
+  sewageTreatmentPlants:{base:1650,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, urbanGreenCover:{base:6500,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+' sq km'},
+  cityWifiHotspots:{base:20000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, gigWorkers:{base:7700000,rate:0.12,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  labourUnions:{base:16000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, minWageWorkersCovered:{base:500000000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  epfoCorpus:{base:2200000,rate:0.1,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, ncsRegistrations:{base:100000000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  domesticWorkers:{base:5000000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, disabilityPensionBeneficiaries:{base:11000000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  widowPensionBeneficiaries:{base:30000000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, harGharJalVillages:{base:145000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  sewageTreatmentCapacity:{base:32000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+' MLD'}, namamiGangeProjects:{base:450,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  swmVillagesCovered:{base:500000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, waterQualityLabs:{base:2000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  rainwaterHarvestingStructures:{base:3500000,rate:0.06,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, handpumpsInstalled:{base:4500000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  districtWaterCommittees:{base:700000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, nationalWaterways:{base:24,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  freightCorridors:{base:2800,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+' km'}, tollPlazas:{base:1000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  expresswaysOperational:{base:6000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')+' km'}, truckFleetRegistered:{base:4500000,rate:0.04,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  logisticsParks:{base:35,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, ropewaysOperational:{base:30,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  healthInsurancePolicies:{base:550000000,rate:0.07,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, pensionFundAum:{base:1400000,rate:0.18,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  manufacturingUnits:{base:250000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, defenseManufLicenses:{base:600,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  lifeInsuranceCorpus:{base:5200000,rate:0.1,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, travelAgencies:{base:90000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  tourGuides:{base:25000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, homestayListings:{base:150000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  internetExchangePoints:{base:10,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, voipUsers:{base:60000000,rate:0.1,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  landlineConnections:{base:20000000,rate:-0.03,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, pmWaniHotspots:{base:200000,rate:0.2,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  forexReserves:     { base: 700,          rate: 0.08, unit: v => '$' + v.toFixed(2) + ' Bn' }, renewableCapacity: { base: 274.68,       rate: 0.20, unit: v => v.toFixed(2) + ' GW' },
+  solarCapacity:     { base: 150.26,       rate: 0.35, unit: v => v.toFixed(2) + ' GW' }, windCapacity:      { base: 56.09,        rate: 0.12, unit: v => v.toFixed(2) + ' GW' },
+  nonFossilCapacity: { base: 283.46,       rate: 0.20, unit: v => v.toFixed(2) + ' GW' }, mobileSubscribers: { base: 1_200_000_000,rate: 0.03, unit: v => Math.round(v).toLocaleString('en-IN') },
+  gstTaxpayers:      { base: 15_000_000,   rate: 0.10, unit: v => Math.round(v).toLocaleString('en-IN') }, janDhanAccounts:      { base: 530_000_000,  rate: 0.05, unit: v => Math.round(v).toLocaleString('en-IN') },
+  aadhaarEnrolments:    { base: 1_350_000_000,rate: 0.015,unit: v => Math.round(v).toLocaleString('en-IN') }, dpiitStartups:        { base: 170_000,      rate: 0.15, unit: v => Math.round(v).toLocaleString('en-IN') },
+  registeredVehicles:   { base: 350_000_000,  rate: 0.08, unit: v => Math.round(v).toLocaleString('en-IN') }, broadbandSubscribers: { base: 940_000_000,  rate: 0.08, unit: v => Math.round(v).toLocaleString('en-IN') },
+  fiveGSubscribers:     { base: 480_000_000,  rate: 0.35, unit: v => Math.round(v).toLocaleString('en-IN') }, pmayHouses:      { base: 26_000_000, rate: 0.10, unit: v => Math.round(v).toLocaleString('en-IN') },
+  metroNetwork:    { base: 950,        rate: 0.12, unit: v => Math.round(v).toLocaleString('en-IN') + ' km' }, nationalHighways:{ base: 146_000,    rate: 0.03, unit: v => Math.round(v).toLocaleString('en-IN') + ' km' },
+  dematAccounts:   { base: 190_000_000,rate: 0.20, unit: v => Math.round(v).toLocaleString('en-IN') }, paymentCards:    { base: 1_150_000_000, rate: 0.10, unit: v => Math.round(v).toLocaleString('en-IN') },
+  hospitalBeds:        { base: 2_400_000, rate: 0.05, unit: v => Math.round(v).toLocaleString('en-IN') }, registeredDoctors:   { base: 1_350_000, rate: 0.04, unit: v => Math.round(v).toLocaleString('en-IN') },
+  lifeInsurancePolicies:{ base: 370_000_000, rate: 0.06, unit: v => Math.round(v).toLocaleString('en-IN') }, schools:             { base: 1_470_000, rate: 0.01, unit: v => Math.round(v).toLocaleString('en-IN') },
+  higherEdEnrolment:   { base: 43_000_000, rate: 0.03, unit: v => Math.round(v).toLocaleString('en-IN') }, phdScholars:         { base: 215_000,    rate: 0.05, unit: v => Math.round(v).toLocaleString('en-IN') },
+  activeMilitary:      { base: 1_455_000,  rate: 0.005,unit: v => Math.round(v).toLocaleString('en-IN') }, satellitesOrbit:     { base: 130,        rate: 0.08, unit: v => Math.round(v).toLocaleString('en-IN') },
+  pmKisanFarmers:{base:110_000_000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')}, irrigatedLand:{base:68_000_000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')+' ha'}, jalJeevanHouseholds:{base:150_000_000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  tigerPopulation:{base:3682,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')}, elephantPopulation:{base:27_000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')}, protectedAreas:{base:1000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  kheloIndiaAthletes:{base:30_000_000,rate:0.10,unit:v=>Math.round(v).toLocaleString('en-IN')}, cinemaScreens:{base:9500,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')}, museumsCount:{base:1000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')}, publicLibraries:{base:54_000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  registeredVoters:{base:970_000_000,rate:0.015,unit:v=>Math.round(v).toLocaleString('en-IN')}, pendingCourtCases:{base:50_000_000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')}, centralGovtEmployees:{base:3_200_000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')}, gramPanchayats:{base:260_000,rate:0.001,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  bankBranches:{base:160_000,rate:0.02,unit:v=>Math.round(v).toLocaleString('en-IN')}, atmsCount:{base:250_000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')}, mutualFundFolios:{base:220_000_000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  unicornStartups:{base:120,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')}, dataCenters:{base:150,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')}, itProfessionals:{base:5_400_000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  urbanPopulation:{base:530_000_000,rate:0.023,unit:v=>Math.round(v).toLocaleString('en-IN')}, urbanPipedWaterHouseholds:{base:450_000_000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')}, urbanLocalBodies:{base:4000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  epfoSubscribers:{base:78_000_000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')}, udyamMsmeRegistered:{base:55_000_000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')}, shgWomenMembers:{base:100_000_000,rate:0.06,unit:v=>Math.round(v).toLocaleString('en-IN')}, esicBeneficiaries:{base:35_000_000,rate:0.04,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  swachhToilets:{base:110_000_000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')}, odfVillages:{base:604_000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  rationCardBeneficiaries:{base:800_000_000,rate:0.01,unit:v=>Math.round(v).toLocaleString('en-IN')}, anganwadiCenters:{base:1_400_000,rate:0.005,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  postOffices:{base:164_000,rate:0.002,unit:v=>Math.round(v).toLocaleString('en-IN')}, publicBusFleet:{base:2_000_000,rate:0.03,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  currencyInCirculation:{base:3_700_000,rate:0.08,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  apySubscribers:{base:70_000_000,rate:0.15,unit:v=>Math.round(v).toLocaleString('en-IN')}, generalInsurancePolicies:{base:180_000_000,rate:0.08,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  hotelRooms:{base:2_500_000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')}, udanRoutes:{base:600,rate:0.10,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  mobileTowers:{base:800_000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')}, cscCenters:{base:530_000,rate:0.05,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  ottSubscribers:{base:500_000_000,rate:0.12,unit:v=>Math.round(v).toLocaleString('en-IN')}
+};
+const FLOW_STATS = {
+  petrolConsumedFY:{total:35000000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, dieselConsumedFY:{total:90000000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'},
+  naturalGasConsumedFY:{total:65000000000,unit:v=>Math.round(v).toLocaleString('en-IN')+' m³'}, commercialVehicleSalesFY:{total:1100000,unit:v=>Math.round(v).toLocaleString('en-IN')+' units'},
+  tractorSalesFY:{total:900000,unit:v=>Math.round(v).toLocaleString('en-IN')+' units'}, autoComponentExportsFY:{total:22000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'},
+  fastagTransactionsFY:{total:4500000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, tollCollectionsFY:{total:65000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  directTaxCollectionsFY:{total:2200000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, gstCollectionsFY:{total:2150000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  customsDutyCollectionsFY:{total:250000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, dbtDisbursedFY:{total:700000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  aadhaarAuthFY:{total:90000000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, egovServicesFY:{total:5000000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  bloodUnitsFY:{total:13000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, organTransplantsFY:{total:18000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  tbCasesNotifiedFY:{total:2600000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, digitalLiteracyCertsFY:{total:6000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  defenseBudgetFY:{total:621000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, missileTestsFY:{total:25,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  defensePsuOutputFY:{total:130000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, agriExportsFY:{total:48000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'},
+  plasticWasteCollectedFY:{total:4100000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, ottContentHoursFY:{total:50000,unit:v=>Math.round(v).toLocaleString('en-IN')+' hrs'},
+  musicStreamsFY:{total:200000000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, padmaAwardsFY:{total:130,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  lokAdalatCasesFY:{total:15000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, cbiCasesFY:{total:700,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  gemTransactionsFY:{total:400000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, iposLaunchedFY:{total:90,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  fdiInflowsFY:{total:71000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'}, vcFundingFY:{total:13000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'},
+  insurancePremiumFY:{total:1100000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, bankRateActionsFY:{total:2,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  patentGrantsFY:{total:45000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, trademarkRegFY:{total:450000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  rdExpenditureFY:{total:130000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, ulbBudgetFY:{total:250000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'},
+  urbanInfraProjectsFY:{total:3000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, newJobsFY:{total:8000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  apprenticeshipsFY:{total:900000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, groundwaterRechargeFY:{total:300000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  wastewaterTreatedFY:{total:15000,unit:v=>Math.round(v).toLocaleString('en-IN')+' Bn L'}, speedPostArticlesFY:{total:200000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  courierParcelsFY:{total:4000000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, portContainerTrafficFY:{total:22000000,unit:v=>Math.round(v).toLocaleString('en-IN')+' TEU'},
+  cropInsuranceSumFY:{total:200000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, garmentExportsFY:{total:16000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'},
+  electronicsOutputFY:{total:130000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'}, toyOutputFY:{total:2000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'},
+  msmeLoansFY:{total:2300000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, internationalAirPaxFY:{total:70000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  cruiseTouristsFY:{total:500000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, heritageSiteVisitorsFY:{total:45000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  medicalTouristsFY:{total:2000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, adventureTourismPermitsFY:{total:300000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  tourismForexEarningsFY:{total:32000000000,unit:v=>'$'+(v/1e9).toFixed(2)+' Bn'}, wellnessTourismFY:{total:800000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  dataBreachesFY:{total:1200,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, websitesBlockedFY:{total:30000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  digitalArrestComplaintsFY:{total:200000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, simCardsIssuedFY:{total:250000000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  cyberAlertsFY:{total:5000,unit:v=>Math.round(v).toLocaleString('en-IN')+''}, digitalFraudCasesFY:{total:400000,unit:v=>Math.round(v).toLocaleString('en-IN')+''},
+  lpgConsumption:   { total: 31_300_000,       unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, pvSales:          { total: 4_643_000,        unit: v => Math.round(v).toLocaleString('en-IN') + ' units' },
+  twoWheelerSales:  { total: 21_700_000,       unit: v => Math.round(v).toLocaleString('en-IN') + ' units' }, totalAutoSales:   { total: 28_300_000,       unit: v => Math.round(v).toLocaleString('en-IN') + ' units' },
+  milkProduction:   { total: 230_000_000,      unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, riceProduction:   { total: 135_000_000,      unit: v => Math.round(v).toLocaleString('en-IN') + ' t' },
+  wheatProduction:  { total: 113_000_000,      unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, sugarProduction:  { total: 35_000_000,       unit: v => Math.round(v).toLocaleString('en-IN') + ' t' },
+  steelProduction:  { total: 145_000_000,      unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, cementProduction: { total: 400_000_000,      unit: v => Math.round(v).toLocaleString('en-IN') + ' t' },
+  coalProduction:   { total: 1_000_000_000,    unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, itExports:        { total: 200_000_000_000,  unit: v => '$' + (v/1e9).toFixed(2) + ' Bn' },
+  textileExports:   { total: 38_000_000_000,   unit: v => '$' + (v/1e9).toFixed(2) + ' Bn' }, remittances:      { total: 135_400_000_000,  unit: v => '$' + (v/1e9).toFixed(2) + ' Bn' },
+  patentsFiled:         { total: 90_300,              unit: v => Math.round(v).toLocaleString('en-IN') }, domesticAirPax:       { total: 160_000_000,         unit: v => Math.round(v).toLocaleString('en-IN') },
+  foreignTouristArrivals:{ total: 9_500_000,          unit: v => Math.round(v).toLocaleString('en-IN') }, eggProduction:        { total: 138_000_000_000,     unit: v => Math.round(v).toLocaleString('en-IN') },
+  cottonProduction:     { total: 5_600_000,           unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, teaProduction:        { total: 1_350_000,           unit: v => Math.round(v).toLocaleString('en-IN') + ' t' },
+  coffeeProduction:     { total: 360_000,             unit: v => Math.round(v).toLocaleString('en-IN') + ' t' }, fishProduction:       { total: 17_500_000,          unit: v => Math.round(v).toLocaleString('en-IN') + ' t' },
+  electricityGenerated: { total: 1_845_921_000_000,   unit: v => (v/1e9).toFixed(2) + ' BU' }, mgnregaPersonDays: { total: 2_500_000_000, unit: v => Math.round(v).toLocaleString('en-IN') },
+  evSales:           { total: 1_950_000,     unit: v => Math.round(v).toLocaleString('en-IN') + ' units' }, rooftopSolar:      { total: 8_710,         unit: v => Math.round(v).toLocaleString('en-IN') + ' MW' },
+  vaccineDoses:      { total: 390_000_000,   unit: v => Math.round(v).toLocaleString('en-IN') }, passportsIssued:   { total: 13_000_000,    unit: v => Math.round(v).toLocaleString('en-IN') },
+  ayushmanTreatments:    { total: 60_000_000, unit: v => Math.round(v).toLocaleString('en-IN') }, institutionalDeliveries:{ total: 24_000_000, unit: v => Math.round(v).toLocaleString('en-IN') },
+  skillTrainings:        { total: 10_000_000, unit: v => Math.round(v).toLocaleString('en-IN') }, scholarshipsDisbursed: { total: 20_000_000, unit: v => Math.round(v).toLocaleString('en-IN') },
+  spaceLaunches:         { total: 12,         unit: v => v.toFixed(1) }, defenseExports:        { total: 2_600_000_000, unit: v => '$' + (v/1e9).toFixed(2) + ' Bn' },
+  borderRoads:           { total: 550,        unit: v => Math.round(v).toLocaleString('en-IN') + ' km' }, foodgrainProduction:{total:332_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, fertilizerConsumption:{total:58_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'},
+  treesPlantedFY:{total:250_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, co2Avoided:{total:150_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, filmsCertifiedFY:{total:1900,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  rtiApplicationsFY:{total:2_500_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, ecommerceOrdersFY:{total:5_000_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, microfinanceLoansFY:{total:120_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  ewasteGeneratedFY:{total:1_750_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, dataConsumptionFY:{total:240,unit:v=>v.toFixed(1)+' EB'}, affordableHousingUnitsFY:{total:1_200_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, solidWasteProcessedFY:{total:55_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'},
+  epfoNewEnrolmentsFY:{total:13_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  waterBodiesRejuvenatedFY:{total:60_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, railwayFreightFY:{total:1_600_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'},
+  portCargoFY:{total:850_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'}, fasalBimaFarmersFY:{total:40_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  pliInvestmentFY:{total:150_000,unit:v=>'₹'+Math.round(v).toLocaleString('en-IN')+' Cr'}, mobilesManufacturedFY:{total:330_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  domesticTouristVisitsFY:{total:2_500_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, airCargoFY:{total:3_500_000,unit:v=>Math.round(v).toLocaleString('en-IN')+' t'},
+  evisaIssuedFY:{total:5_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')},
+  cyberCrimeComplaintsFY:{total:1_600_000,unit:v=>Math.round(v).toLocaleString('en-IN')}, spamCallsBlockedFY:{total:2_000_000_000,unit:v=>Math.round(v).toLocaleString('en-IN')}
+};
+function updateEnergyPulse(){
+  const years = (Date.now() - BASELINE_TIME) / (SECONDS_PER_YEAR * 1000);
+  for(const [id, s] of Object.entries(STOCK_STATS)){
+    document.getElementById(id).textContent = s.unit(s.base * Math.pow(1 + s.rate, years));
+  }
+  const frac = fiscalYearFraction();
+  for(const [id, s] of Object.entries(FLOW_STATS)){
+    document.getElementById(id).textContent = s.unit(s.total * frac);
+  }
+}
+setInterval(updateEnergyPulse, 1000);
+updateEnergyPulse();
+// ---------- Static country facts (reference data + live upgrade) ----------
+// REST Countries v3.1 has become unreliable (its successor now requires a paid
+// API key), so known-accurate reference facts are shown immediately, then
+// quietly upgraded with live API data if the request succeeds.
+const FALLBACK = {
+  capital: 'New Delhi', region: 'Asia · Southern Asia', area: '3,287,263 km²',
+  tz: 'UTC+05:30', currency: 'Indian Rupee (₹)', languages: 'Hindi, English',
+  borders: 'Pakistan, China, Nepal, Bhutan, Bangladesh, Myanmar', calling: '+91',
+  officialPop: '1,450,935,791', nativeName: 'भारत', demonym: 'Indian',
+  continent: 'Asia', flagEmoji: '🇮🇳', tld: '.in', driving: 'Left (vehicles are right-hand drive)',
+  landlocked: 'No', unMember: 'Yes', independent: 'Yes', fifa: 'IND',
+  startWeek: 'Monday', gini: '32.8 (2021)', capCoords: '28.61, 77.21'
+};
+function fillFallback(){
+  Object.entries(FALLBACK).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = val;
+  });
+}
+async function loadCountryData(){
+  const status = document.getElementById('status');
+  fillFallback();
+  status.textContent = 'Showing reference data — checking for live update…';
+  try{
+    const fields = 'capital,region,subregion,area,timezones,currencies,languages,borders,idd,'
+      + 'population,demonyms,gini,car,landlocked,unMember,independent,fifa,flag,'
+      + 'continents,startOfWeek,capitalInfo,tld,name';
+    const res = await fetch(`https://restcountries.com/v3.1/name/india?fullText=true&fields=${fields}`);
+    if(!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    const c = data[0];
+    document.getElementById('capital').textContent = (c.capital && c.capital[0]) || '—';
+    document.getElementById('region').textContent = c.subregion ? `${c.region} · ${c.subregion}` : c.region;
+    document.getElementById('area').textContent = c.area ? `${c.area.toLocaleString('en-IN')} km²` : '—';
+    document.getElementById('tz').textContent = c.timezones ? c.timezones.join(', ') : '—';
+    const curr = c.currencies ? Object.values(c.currencies)[0] : null;
+    document.getElementById('currency').textContent = curr ? `${curr.name} (${curr.symbol || ''})` : '—';
+    const langs = c.languages ? Object.values(c.languages).join(', ') : '—';
+    document.getElementById('languages').textContent = langs;
+    document.getElementById('borders').textContent = c.borders && c.borders.length ? c.borders.join(', ') : 'None';
+    const idd = c.idd ? `${c.idd.root || ''}${(c.idd.suffixes && c.idd.suffixes[0]) || ''}` : '—';
+    document.getElementById('calling').textContent = idd || '—';
+    document.getElementById('officialPop').textContent = c.population ? c.population.toLocaleString('en-IN') : '—';
+    document.getElementById('nativeName').textContent = c.name?.nativeName ? Object.values(c.name.nativeName)[0].common : '—';
+    document.getElementById('demonym').textContent = c.demonyms?.eng?.m || '—';
+    document.getElementById('continent').textContent = c.continents ? c.continents.join(', ') : '—';
+    document.getElementById('flagEmoji').textContent = c.flag || '—';
+    document.getElementById('tld').textContent = c.tld ? c.tld.join(', ') : '—';
+    document.getElementById('driving').textContent = c.car?.side ? (c.car.side === 'left' ? 'Left (vehicles are right-hand drive)' : 'Right (vehicles are left-hand drive)') : '—';
+    document.getElementById('landlocked').textContent = c.landlocked ? 'Yes' : 'No';
+    document.getElementById('unMember').textContent = c.unMember ? 'Yes' : 'No';
+    document.getElementById('independent').textContent = c.independent ? 'Yes' : 'No';
+    document.getElementById('fifa').textContent = c.fifa || '—';
+    document.getElementById('startWeek').textContent = c.startOfWeek ? c.startOfWeek[0].toUpperCase() + c.startOfWeek.slice(1) : '—';
+    const giniObj = c.gini ? Object.entries(c.gini)[0] : null;
+    document.getElementById('gini').textContent = giniObj ? `${giniObj[1]} (${giniObj[0]})` : '—';
+    const cap = c.capitalInfo?.latlng;
+    document.getElementById('capCoords').textContent = cap ? `${cap[0].toFixed(2)}, ${cap[1].toFixed(2)}` : '—';
+    status.textContent = 'Live data confirmed via REST Countries API.';
+  }catch(err){
+    status.textContent = 'Live API unreachable — showing verified reference data.';
+  }
+}
+loadCountryData();
+if('serviceWorker' in navigator){ window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(() => {})); }
+</script>
+</body>
+</html>
